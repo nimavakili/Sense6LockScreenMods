@@ -1,0 +1,36 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+	android:background="@color/actionbar_background"
+    tools:context="com.minimv.senselockscreen.MainActivity"
+    tools:ignore="MergeRootFrame">
+    
+	<RelativeLayout
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent"
+	    android:background="@color/actionbar_background"
+	    android:clipToPadding="false"
+	    android:fitsSystemWindows="true"
+	    tools:context="com.minimv.senselockscreen.MainActivity$SettingsFragment" >
+
+	    <RelativeLayout
+	        android:id="@+id/container"
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        android:layout_above="@+id/footer"
+	        android:background="@android:color/white" />
+
+	    <TextView
+	        android:id="@+id/footer"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignParentBottom="true"
+	        android:layout_centerHorizontal="true"
+	        android:text="@string/author"
+	        android:textAppearance="?android:attr/textAppearanceSmallInverse" />
+
+	</RelativeLayout>
+
+</FrameLayout>
+
