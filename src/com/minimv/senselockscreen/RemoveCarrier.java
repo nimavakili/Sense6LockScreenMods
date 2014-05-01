@@ -2,7 +2,6 @@ package com.minimv.senselockscreen;
 
 import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
 import static de.robv.android.xposed.XposedHelpers.findClass;
-//import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam;
 import de.robv.android.xposed.XC_MethodHook;
@@ -20,24 +19,19 @@ public class RemoveCarrier implements IXposedHookLoadPackage {
 	
 	public RemoveCarrier() {
 		prefs = new XSharedPreferences("com.minimv.senselockscreen");
-    	//removeCarrier = prefs.getBoolean("removeCarrier", false);
-    	//XposedBridge.log("Read preferences at construct: " + removeCarrier);
 	}
 	
 	public void handleLoadPackage(final LoadPackageParam lpparam) throws Throwable {
         if (lpparam.packageName.equals("com.htc.lockscreen")) {
 
-        	//XposedBridge.log("Lockscreen Loaded!");
 	    	Class<?> ShortcutSphere = findClass("com.htc.lockscreen.ui.footer.ShortcutSphere", lpparam.classLoader);
 	
 	        findAndHookMethod("com.htc.lockscreen.ui.OperatorView", lpparam.classLoader, "updateOperatorName", new XC_MethodHook() {
 	            @Override
 	            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-	            	//XposedBridge.log("Method updateOperatorName Found and Hooked!");
 	            	prefs.reload();
 	            	removeCarrier = prefs.getBoolean("removeCarrier", false);
 	            	carrierText = prefs.getString("carrierText", "");
-	            	//XposedBridge.log("Read preferences at hook: " + removeCarrier);
 	            	TextView carrier = (TextView) param.thisObject;
 	            	if (removeCarrier) {
 	            		carrier.setVisibility(View.GONE);
@@ -51,7 +45,6 @@ public class RemoveCarrier implements IXposedHookLoadPackage {
 	        findAndHookMethod("com.htc.lockscreen.ui.footer.ButtonFooter", lpparam.classLoader, "init", new XC_MethodHook() {
 	            @Override
 	            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-	            	//XposedBridge.log("Method init Found and Hooked!");
 	            	prefs.reload();
 	            	panelAlignBottom = prefs.getBoolean("panelAlignBottom", false);
 	            	hintText = prefs.getString("hintText", "");
@@ -74,7 +67,6 @@ public class RemoveCarrier implements IXposedHookLoadPackage {
 	        findAndHookMethod("com.htc.lockscreen.ui.footer.ButtonFooter", lpparam.classLoader, "updateShortcutVisible", boolean.class, new XC_MethodHook() {
 	            @Override
 	            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-	            	//XposedBridge.log("Method updateShortcutVisible Found and Hooked!");
 	            	prefs.reload();
 	            	nukeHidePanel = prefs.getBoolean("nukeHidePanel", false);
 	            	hintText = prefs.getString("hintText", "");
@@ -99,7 +91,6 @@ public class RemoveCarrier implements IXposedHookLoadPackage {
 	        findAndHookMethod("com.htc.lockscreen.ui.footer.ButtonFooter", lpparam.classLoader, "onBeginDrag", ShortcutSphere, new XC_MethodHook() {
 	            @Override
 	            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-	            	//XposedBridge.log("Method onBeginDrag Found and Hooked!");
 	            	prefs.reload();
 	            	//nukeSphereDrag = prefs.getBoolean("nukeSphereDrag", false);
 	            	hintText = prefs.getString("hintText", "");
@@ -112,7 +103,6 @@ public class RemoveCarrier implements IXposedHookLoadPackage {
 	        findAndHookMethod("com.htc.lockscreen.ui.footer.ButtonFooter", lpparam.classLoader, "isShowAllDirectArrow", new XC_MethodHook() {
 	            @Override
 	            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-	            	//XposedBridge.log("Method isShowAllDirectArrow Found and Hooked!");
 	            	prefs.reload();
 	            	nukeHorizontalArrows = prefs.getBoolean("nukeHorizontalArrows", false);
 	            	if (nukeHorizontalArrows) {
