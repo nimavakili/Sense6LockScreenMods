@@ -6,6 +6,7 @@ import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
+import de.robv.android.xposed.XposedBridge;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
@@ -54,17 +55,11 @@ public class RemoveCarrier implements IXposedHookLoadPackage {
 	                if (panelAlignBottom) {
 	                	FrameLayout.LayoutParams localLayoutParams = (FrameLayout.LayoutParams) panel.getLayoutParams();
 	                	RelativeLayout.LayoutParams localLayoutParamsBg = (RelativeLayout.LayoutParams) panelBg.getLayoutParams();
-	                	if (localLayoutParams.bottomMargin == 0) {
-		                	localLayoutParams.bottomMargin = -81;
+	                	if (localLayoutParams.bottomMargin == 0 || localLayoutParams.bottomMargin > 100) {
+		                	//XposedBridge.log("Shortcut panel original bottom margin: " + localLayoutParams.bottomMargin);
+		                	localLayoutParams.bottomMargin -= 81;
 		                	panel.setLayoutParams(localLayoutParams);
 		                	localLayoutParamsBg.bottomMargin = 81;
-		                	panelBg.setLayoutParams(localLayoutParamsBg);
-		                	//XposedBridge.log("bottom margin: " + localLayoutParamsBg.bottomMargin);
-	                	}
-	                	else if (localLayoutParams.bottomMargin == 144) {
-		                	localLayoutParams.bottomMargin = -79;
-		                	panel.setLayoutParams(localLayoutParams);
-		                	localLayoutParamsBg.bottomMargin = 79;
 		                	panelBg.setLayoutParams(localLayoutParamsBg);
 	                	}
 	                }
@@ -89,12 +84,12 @@ public class RemoveCarrier implements IXposedHookLoadPackage {
 	                if (panelAlignBottom) {
 	                	FrameLayout.LayoutParams localLayoutParams = (FrameLayout.LayoutParams) panel.getLayoutParams();
 	                	RelativeLayout.LayoutParams localLayoutParamsBg = (RelativeLayout.LayoutParams) panelBg.getLayoutParams();
-	                	if (localLayoutParams.bottomMargin == 0 || localLayoutParams.bottomMargin == 144) {
+	                	if (localLayoutParams.bottomMargin == 0 || localLayoutParams.bottomMargin > 100) {
+		                	XposedBridge.log("Shortcut panel original bottom margin: " + localLayoutParams.bottomMargin);
 		                	localLayoutParams.bottomMargin -= 81;
 		                	panel.setLayoutParams(localLayoutParams);
 		                	localLayoutParamsBg.bottomMargin = 81;
 		                	panelBg.setLayoutParams(localLayoutParamsBg);
-		                	//XposedBridge.log("bottom margin: " + localLayoutParamsBg.bottomMargin);
 	                	}
 	                }
 	            }
