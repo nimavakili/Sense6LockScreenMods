@@ -31,9 +31,10 @@ public class RemoveCarrier implements IXposedHookLoadPackage {
 	            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
 	            	prefs.reload();
 	            	removeCarrier = prefs.getBoolean("removeCarrier", false);
+	            	panelAlignBottom = prefs.getBoolean("panelAlignBottom", false);
 	            	carrierText = prefs.getString("carrierText", "");
 	            	TextView carrier = (TextView) param.thisObject;
-	            	if (removeCarrier) {
+	            	if (removeCarrier || panelAlignBottom) {
 	            		carrier.setVisibility(View.GONE);
 	            	}
 	            	else if (!carrierText.equals("")) {
@@ -49,13 +50,26 @@ public class RemoveCarrier implements IXposedHookLoadPackage {
 	            	panelAlignBottom = prefs.getBoolean("panelAlignBottom", false);
 	            	hintText = prefs.getString("hintText", "");
 	            	RelativeLayout panel = (RelativeLayout) param.thisObject;
+	                View panelBg = (View) panel.getChildAt(0);
 	                if (panelAlignBottom) {
 	                	FrameLayout.LayoutParams localLayoutParams = (FrameLayout.LayoutParams) panel.getLayoutParams();
-	                	localLayoutParams.bottomMargin = -81;
-	                	panel.setLayoutParams(localLayoutParams);
+	                	RelativeLayout.LayoutParams localLayoutParamsBg = (RelativeLayout.LayoutParams) panelBg.getLayoutParams();
+	                	if (localLayoutParams.bottomMargin == 0) {
+		                	localLayoutParams.bottomMargin = -81;
+		                	panel.setLayoutParams(localLayoutParams);
+		                	localLayoutParamsBg.bottomMargin = 81;
+		                	panelBg.setLayoutParams(localLayoutParamsBg);
+		                	//XposedBridge.log("bottom margin: " + localLayoutParamsBg.bottomMargin);
+	                	}
+	                	else if (localLayoutParams.bottomMargin == 144) {
+		                	localLayoutParams.bottomMargin = -79;
+		                	panel.setLayoutParams(localLayoutParams);
+		                	localLayoutParamsBg.bottomMargin = 79;
+		                	panelBg.setLayoutParams(localLayoutParamsBg);
+	                	}
 	                }
-	                int count = panel.getChildCount();
 	            	if (!hintText.equals("")) {
+		                int count = panel.getChildCount();
 		                TextView mHint = (TextView) panel.getChildAt(count-2);
 		                mHint.setText(hintText);
 		                mHint.setVisibility(View.VISIBLE);
@@ -63,7 +77,29 @@ public class RemoveCarrier implements IXposedHookLoadPackage {
 	            	}
 	            }
 	        });
-	
+
+	        findAndHookMethod("com.htc.lockscreen.ui.footer.ButtonFooter", lpparam.classLoader, "adjustPosition", new XC_MethodHook() {
+	            @Override
+	            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+	            	prefs.reload();
+	            	panelAlignBottom = prefs.getBoolean("panelAlignBottom", false);
+	            	hintText = prefs.getString("hintText", "");
+	            	RelativeLayout panel = (RelativeLayout) param.thisObject;
+	                View panelBg = (View) panel.getChildAt(0);
+	                if (panelAlignBottom) {
+	                	FrameLayout.LayoutParams localLayoutParams = (FrameLayout.LayoutParams) panel.getLayoutParams();
+	                	RelativeLayout.LayoutParams localLayoutParamsBg = (RelativeLayout.LayoutParams) panelBg.getLayoutParams();
+	                	if (localLayoutParams.bottomMargin == 0 || localLayoutParams.bottomMargin == 144) {
+		                	localLayoutParams.bottomMargin -= 81;
+		                	panel.setLayoutParams(localLayoutParams);
+		                	localLayoutParamsBg.bottomMargin = 81;
+		                	panelBg.setLayoutParams(localLayoutParamsBg);
+		                	//XposedBridge.log("bottom margin: " + localLayoutParamsBg.bottomMargin);
+	                	}
+	                }
+	            }
+	        });
+	        
 	        findAndHookMethod("com.htc.lockscreen.ui.footer.ButtonFooter", lpparam.classLoader, "updateShortcutVisible", boolean.class, new XC_MethodHook() {
 	            @Override
 	            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {

@@ -8,7 +8,7 @@
 	   android:defaultValue="false"/>
 	<CheckBoxPreference
 	   android:key="removeCarrier"
-	   android:title="Remove Carrier Label"
+	   android:title="Hide Carrier Label"
 	   android:summary="Removes carrier label at the bottom of lockscreen"
 	   android:disableDependentsState="true"
 	   android:dependency="panelAlignBottom"
@@ -37,7 +37,7 @@
 	   android:defaultValue="false"/>
 	<CheckBoxPreference
 	   android:key="nukeHorizontalArrows"
-	   android:title="Disable Horizontal Arrows"
+	   android:title="Disable Horizontal Arrows/Sliding"
 	   android:summary="Disables the left and right arrows when swiping to unlock screen"
 	   android:dependency="nukeHidePanel"
 	   android:defaultValue="false"/>
