@@ -24,11 +24,6 @@
 	   android:title="Set Custom Hint Text"
 	   android:summary="Sets custom text for hint label above the panel (empty for default)"
 	   android:defaultValue=""/>
-	<!-- CheckBoxPreference
-	   android:key="nukeSphereDrag"
-	   android:title="Disable Show Hint"
-	   android:summary="Disables the default hint above the panel when dragging shortcuts"
-	   android:defaultValue="false"/-->
 	<CheckBoxPreference
 	   android:key="nukeHidePanel"
 	   android:title="Disable Hide Shortcuts"
