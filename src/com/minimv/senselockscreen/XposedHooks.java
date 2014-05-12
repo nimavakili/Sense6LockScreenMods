@@ -5,17 +5,21 @@ package com.minimv.senselockscreen;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-
+import android.view.View.OnLongClickListener;
 import android.widget.ViewFlipper;
 //import static de.robv.android.xposed.XposedBridge.hookMethod;
 import static de.robv.android.xposed.XposedBridge.hookAllConstructors;
 import static de.robv.android.xposed.XposedBridge.hookAllMethods;
+import static de.robv.android.xposed.XposedBridge.hookLoadPackage;
 import static de.robv.android.xposed.XposedBridge.invokeOriginalMethod;
+import static de.robv.android.xposed.XposedHelpers.callMethod;
 //import static de.robv.android.xposed.XposedBridge.hookAllMethods;
 import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
 import static de.robv.android.xposed.XposedHelpers.findClass;
 import static de.robv.android.xposed.XposedHelpers.findField;
 import static de.robv.android.xposed.XposedHelpers.findMethodBestMatch;
+import static de.robv.android.xposed.XposedHelpers.findMethodsByExactParameters;
+import static de.robv.android.xposed.XposedHelpers.setAdditionalStaticField;
 import static de.robv.android.xposed.XposedHelpers.setIntField;
 //import static de.robv.android.xposed.XposedHelpers.findMethodBestMatch;
 //import static de.robv.android.xposed.XposedHelpers.getIntField;
@@ -24,10 +28,12 @@ import static de.robv.android.xposed.XposedHelpers.getObjectField;
 //import static de.robv.android.xposed.XposedHelpers.findField;
 //import static de.robv.android.xposed.XposedHelpers.setIntField;
 //import static de.robv.android.xposed.XposedHelpers.setStaticIntField;
-
+import android.view.HapticFeedbackConstants;
 //import java.lang.reflect.Field;
 //import static de.robv.android.xposed.XposedHelpers.findConstructorExact;
 import de.robv.android.xposed.IXposedHookLoadPackage;
+import de.robv.android.xposed.callbacks.XC_InitPackageResources.InitPackageResourcesParam;
+import de.robv.android.xposed.callbacks.XC_LayoutInflated;
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
@@ -48,14 +54,15 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-public class RemoveCarrier implements IXposedHookLoadPackage {
+public class XposedHooks implements IXposedHookLoadPackage {
 
+	public boolean hasKeyguardWidgetPagerRun = false;
 	XSharedPreferences prefs;
 	boolean removeCarrier, panelAlignBottom, nukeSphereDrag, nukeHidePanel, nukeHorizontalArrows;
 	String carrierText, hintText;
 	//ViewFlipper mKeyguardSecurityContainer = null;
 	
-	public RemoveCarrier() {
+	public XposedHooks() {
 		prefs = new XSharedPreferences("com.minimv.senselockscreen");
 	}
 	
@@ -438,12 +445,17 @@ public class RemoveCarrier implements IXposedHookLoadPackage {
 	            	Method fadeOutChallenge = findMethodBestMatch(findClass("com.htc.lockscreen.keyguard.SlidingChallengeLayout", lpparam.classLoader), "fadeOutChallenge");
 	            	fadeOutChallenge.invoke(mChallengeLayout, (Object[]) null);
 	            	*/
-	            	Object security = mKeyguardSecurityContainer.getChildAt(mKeyguardSecurityContainer.getDisplayedChild());
+	            	View security = mKeyguardSecurityContainer.getChildAt(mKeyguardSecurityContainer.getDisplayedChild());
 	            	//XposedBridge.log("V: " + mChallengeLayout.getVisibility() + ", A: " + mChallengeLayout.getAlpha());
 	            	Method isChallengeShowing = findMethodBestMatch(findClass("com.htc.lockscreen.keyguard.KeyguardViewStateManager", lpparam.classLoader), "isChallengeShowing");
 	            	boolean mChallengeShowing = (boolean) isChallengeShowing.invoke(mViewStateManager, (Object[]) null);
 	            	//XposedBridge.log(security.getClass().getName() + ", isChallengeShowing: " + mChallengeShowing);
-	            	if (security.getClass().getName().contains("HtcPatternUnlockView") && mChallengeShowing) {
+	            	int[] loc = new int[2];
+	            	security.getLocationOnScreen(loc);
+	            	MotionEvent me = (MotionEvent) param.args[0];
+	            	if (security.getClass().getName().contains("HtcPatternUnlockView") && mChallengeShowing && me.getRawY() > loc[1]) {
+		            	//XposedBridge.log("PagedView Y: " + me.getY());
+		            	//XposedBridge.log("PagedView RawY: " + me.getRawY());
 	            		//Method resetTouchState = findMethodBestMatch(findClass("com.htc.lockscreen.keyguard.PagedView", lpparam.classLoader), "resetTouchState");
 	            		//resetTouchState.invoke(param.thisObject, (Object[]) null);
 	            		//((LinearLayout) security).setBackgroundColor(Color.RED);
@@ -473,6 +485,7 @@ public class RemoveCarrier implements IXposedHookLoadPackage {
 	            	MotionEvent me = (MotionEvent) param.args[0];
 	            	//XposedBridge.log("HtcPatternUnlockView X: " + me.getX());
 	            	//XposedBridge.log("HtcPatternUnlockView Y: " + me.getY());
+	            	//XposedBridge.log("HtcPatternUnlockView RawY: " + me.getRawY());
 	            	boolean result = true;
 	            	if (!me.isFromSource(66))
 		            	//XposedBridge.log("HtcPatternUnlockView: " + MotionEvent.actionToString(me.getAction()));
@@ -493,16 +506,16 @@ public class RemoveCarrier implements IXposedHookLoadPackage {
 	            }
 	        });*/
 	        
-	        /*findAndHookMethod("com.htc.lockscreen.unlockscreen.HtcPatternUnlockView", lpparam.classLoader, "onConstructor", new XC_MethodHook() {
+	        findAndHookMethod("com.htc.lockscreen.unlockscreen.HtcPatternUnlockView", lpparam.classLoader, "onConstructor", new XC_MethodHook() {
 	            @Override
 	            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-	            	//final View parent = (View) param.thisObject;
-	            	final View mLockPatternView = (View) getObjectField(param.thisObject, "mLockPatternView");
-	            	final View parent = (View) mLockPatternView.getParent();
-	            	parent.setClickable(true);
-	            	ArrayList<View> touchable = new ArrayList<View>(1);
-	            	touchable.add(parent);
-	            	parent.addTouchables(touchable);*/
+	            	//View parent = (View) param.thisObject;
+	            	//View mLockPatternView = (View) getObjectField(param.thisObject, "mLockPatternView");
+	            	//View parent = (View) mLockPatternView.getParent();
+	            	//parent.setClickable(true);
+	            	//ArrayList<View> touchable = new ArrayList<View>(1);
+	            	//touchable.add(parent);
+	            	//parent.addTouchables(touchable);
 	            	/*parent.setOnTouchListener(new View.OnTouchListener() {
 	            	    @Override
 	            	    public boolean onTouch(View v, MotionEvent me) {
@@ -520,10 +533,10 @@ public class RemoveCarrier implements IXposedHookLoadPackage {
             		//RelativeLayout pattern3 = (RelativeLayout) pattern2.getChildAt(0);
 	            	//pattern3.setBackgroundColor(Color.MAGENTA);
 	            	//mLockPatternView.setBackgroundColor(Color.RED);
-            		//final LinearLayout parent = (LinearLayout) mLockPatternView.getParent();
-	            	//parent.setBackgroundColor(Color.MAGENTA);
+            		//LinearLayout parent2 = (LinearLayout) mLockPatternView.getParent();
+	            	//parent2.setBackgroundColor(Color.MAGENTA);
 	            	//LinearLayout.LayoutParams localLayoutParams = (LinearLayout.LayoutParams) pattern3.getLayoutParams();
-	            	//localLayoutParams.height =+ 80;
+	            	//localLayoutParams.height += 50;
 	            	//LinearLayout.LayoutParams newLayoutParam = new LinearLayout.LayoutParams(-1, localLayoutParams.height + 200);
 	            	//newLayoutParam.gravity = localLayoutParams.gravity;
 	            	//pattern3.setLayoutParams(localLayoutParams);
@@ -546,8 +559,8 @@ public class RemoveCarrier implements IXposedHookLoadPackage {
 	            	//mLockPatternView.set
 	            	//ViewGroup.LayoutParams localLayoutParams = (ViewGroup.LayoutParams) mLockPatternView.getLayoutParams();
 	            	//XposedBridge.log("width: " + localLayoutParams.width);
-	            //}
-	        //});
+	            }
+	        });
 
 	        findAndHookMethod("com.htc.lockscreen.keyguard.SlidingChallengeLayout", lpparam.classLoader, "dispatchTouchEvent", MotionEvent.class, new XC_MethodHook() {
 				@Override
@@ -558,21 +571,30 @@ public class RemoveCarrier implements IXposedHookLoadPackage {
 	            	Method getFlipper = findMethodBestMatch(findClass("com.htc.lockscreen.keyguard.KeyguardSecurityContainer", lpparam.classLoader), "getFlipper");
 	            	ViewFlipper flipper = (ViewFlipper) getFlipper.invoke(mChallengeView, (Object[]) null);
 	            	View security = flipper.getChildAt(flipper.getDisplayedChild());
-	            	//security.setBackgroundColor(Color.WHITE);
+	            	//security.setBackgroundColor(Color.MAGENTA);
+	            	//LinearLayout.LayoutParams challengeLayoutParam = (ViewGroup.LayoutParams) security.getLayoutParams();
+	            	//challengeLayoutParam.bottomMargin = 200;
+	            	//security.setLayoutParams(challengeLayoutParam);
 	            	Method isChallengeShowing = findMethodBestMatch(findClass("com.htc.lockscreen.keyguard.SlidingChallengeLayout", lpparam.classLoader), "isChallengeShowing");
 	            	boolean mChallengeShowing = (boolean) isChallengeShowing.invoke(param.thisObject, (Object[]) null);
-	            	View mLockPatternView = ((ViewGroup) ((ViewGroup) ((ViewGroup) ((ViewGroup) security).getChildAt(0)).getChildAt(0)).getChildAt(0)).getChildAt(3);
-	            	//mLockPatternView.setBackgroundColor(Color.RED);
-	            	float topToChallenge = mLockPatternView.getTop();
-	            	float topToParent = mChallengeView.getTop() + topToChallenge;
-	            	Rect rect = new Rect();
-	            	mChallengeView.getWindowVisibleDisplayFrame(rect);
 	            	//XposedBridge.log("Top: " + rect.top);
-	            	MotionEvent me = (MotionEvent) param.args[0];
 	            	if (security.getClass().getName().contains("HtcPatternUnlockView") && mChallengeShowing) {
-		            	me.offsetLocation(-mLockPatternView.getLeft(), -topToParent+ rect.top - mLockPatternView.getTop());
+	            		ViewGroup parent = (ViewGroup) ((ViewGroup) ((ViewGroup) ((ViewGroup) security).getChildAt(0)).getChildAt(0)).getChildAt(0);
+		            	View mLockPatternView = parent.getChildAt(parent.getChildCount() - 1);
+		            	//XposedBridge.log(mLockPatternView.getClass().getPackage().getName());
+		            	//mLockPatternView.setBackgroundColor(Color.RED);
+		            	//float topToChallenge = mLockPatternView.getTop();
+		            	//float topToParent = mChallengeView.getTop() + topToChallenge;
+		            	//Rect rect = new Rect();
+		            	//mChallengeView.getWindowVisibleDisplayFrame(rect);
+		            	int[] loc = new int[2];
+		            	mLockPatternView.getLocationOnScreen(loc);
+		            	MotionEvent me = (MotionEvent) param.args[0];
+		            	//me.offsetLocation(-mLockPatternView.getLeft(), -topToParent + rect.top - mLockPatternView.getTop());
+		            	me.offsetLocation(-loc[0], -loc[1]);
 		            	//XposedBridge.log("SlidingChallengeLayout X: " + me.getX());
 		            	//XposedBridge.log("SlidingChallengeLayout Y: " + me.getY());
+		            	//XposedBridge.log("SlidingChallengeLayout RawY: " + me.getRawY());
 		            	me.setSource(66);
 		            	//Rect rect = new Rect();
 		            	//mLockPatternView.getHitRect(rect);
@@ -657,6 +679,138 @@ public class RemoveCarrier implements IXposedHookLoadPackage {
 	            	//param.setResult(false);
 	            }
 	        });*/
-        }
+
+	        /*Class<?> HtcLockPatternView = findClass("com.htc.lockscreen.view.HtcLockPatternView", lpparam.classLoader);
+	        Method[] touchEvents = HtcLockPatternView.getDeclaredMethods();
+	        //Method[] touchEvents = findMethodsByExactParameters(HtcLockPatternView, boolean.class, MotionEvent.class);
+	        for (int i = 0; i < touchEvents.length; i++) {
+		        XposedBridge.log("HtcLockPatternView Methods: " + touchEvents[i].getName());
+	        }
+
+	        Class<?> LockPatternView = findClass("com.android.internal.widget.LockPatternView", lpparam.classLoader);
+	        touchEvents = LockPatternView.getDeclaredMethods();
+	        //Method[] touchEvents = findMethodsByExactParameters(HtcLockPatternView, boolean.class, MotionEvent.class);
+	        for (int i = 0; i < touchEvents.length; i++) {
+		        XposedBridge.log("LockPatternView Methods: " + touchEvents[i].getName());
+	        }*/
+	        
+	        /*findAndHookMethod("com.htc.lockscreen.view.HtcLockPatternView", lpparam.classLoader, "onTouchEvent", MotionEvent.class, new XC_MethodHook() {
+	            @Override
+	            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+	            	//View parent = (View) param.thisObject;
+	            	//View mLockPatternView = (View) getObjectField(param.thisObject, "mLockPatternView");
+	            	MotionEvent me = (MotionEvent) param.args[0];
+	            	//XposedBridge.log("dispatchTouchEvent: " + (-mLockPatternView.getLeft()) + ", " + (-mLockPatternView.getTop()));
+	            	//me.offsetLocation(-mLockPatternView.getLeft(), -mLockPatternView.getTop());
+	            	//parent.dispatchTouchEvent(me);
+	            	XposedBridge.log("LockPatternView: " + me.getY());
+	            	//XposedBridge.log("Delegate: " + ((View)param.thisObject).getTouchDelegate().onTouchEvent(me));
+	            	//param.setResult(false);
+	            }
+	        });*/
+
+	        /*findAndHookMethod("com.htc.lockscreen.keyguard.KeyguardHostView", lpparam.classLoader, "onFinishInflate", new XC_MethodHook() {
+				@Override
+				protected void afterHookedMethod(MethodHookParam param) {
+					//View mSlidingChallengeLayout = (View) getObjectField(param.thisObject, "mSlidingChallengeLayout");
+					//mSlidingChallengeLayout.setBackgroundColor(Color.GREEN);
+					//callMethod(mSlidingChallengeLayout, "showChallenge", false);
+					View mSecurityViewFlipper = (View) getObjectField(param.thisObject, "mSecurityViewContainer");
+					mSecurityViewFlipper.setBackgroundColor(Color.MAGENTA);
+					//FrameLayout.LayoutParams lParams = (FrameLayout.LayoutParams) mSecurityViewFlipper.getLayoutParams();
+					//lParams.bottomMargin = 100;
+					//lParams.height = 1500;
+					//XposedBridge.log("FH" + mSecurityViewFlipper.getHeight());
+					//mSecurityViewFlipper.setLayoutParams(lParams);
+					//mSecurityViewFlipper.setPadding(0, 0, 0, 0);
+					View mSecurityViewContainer = (View) mSecurityViewFlipper.getParent();
+					mSecurityViewContainer.setBackgroundColor(Color.YELLOW);
+					//FrameLayout.LayoutParams lParams2 = (FrameLayout.LayoutParams) mSecurityViewContainer.getLayoutParams();
+					//lParams2.height = 1500;
+					//mSecurityViewContainer.setLayoutParams(lParams2);
+					//mSecurityViewContainer.setPadding(0, 0, 0, 0);
+					//XposedBridge.log("FH" + lParams.height);
+					//XposedBridge.log("FgH" + mSecurityViewFlipper.getHeight());
+					//XposedBridge.log("CH" + lParams2.height);
+					//XposedBridge.log("CgH" + mSecurityViewContainer.getHeight());
+				}
+			});*/
+
+			findAndHookMethod("com.htc.lockscreen.keyguard.KeyguardHostView", lpparam.classLoader, "onScreenTurnedOn", new XC_MethodHook() {
+				@Override
+				protected void afterHookedMethod(MethodHookParam param) {
+					//Object object = getObjectField(param.thisObject, "mSlidingChallengeLayout");
+					//callMethod(object, "showChallenge", false);
+				}
+			});
+
+	    	//Class<?> KeyguardWidgetPager = findClass("com.htc.lockscreen.keyguard.KeyguardWidgetPager", lpparam.classLoader);
+	        //hookAllConstructors(KeyguardWidgetPager, new XC_MethodHook() {
+			/*findAndHookMethod("com.htc.lockscreen.keyguard.KeyguardWidgetPager", lpparam.classLoader, "onMeasure", int.class, int.class, new XC_MethodHook() {
+				@Override
+				protected void afterHookedMethod(MethodHookParam param) {
+					//if (!hasKeyguardWidgetPagerRun) {
+						//param.args[0] = 1640 + 81;
+						View parent = (View) param.thisObject;
+						//widgetFrame.setBackgroundColor(Color.RED);
+						//View parent = (View) widgetFrame.getParent();
+						parent.setPadding(0, parent.getPaddingTop(), 0, parent.getPaddingBottom() - 81);
+		            	//XposedBridge.log("TP: " + parent.getPaddingTop());
+		            	XposedBridge.log("BP: " + parent.getPaddingBottom());
+						//parent.setBackgroundColor(Color.YELLOW);
+	                	//ViewGroup.LayoutParams localLayoutParams = (ViewGroup.LayoutParams) widgetFrame.getLayoutParams();
+	                	//localLayoutParams.height += 81;
+	                	//widgetFrame.setLayoutParams(localLayoutParams);
+						//XposedBridge.log("setFrameHeight" + param.args[0]);
+						//XposedBridge.log("getFrameHeight: " + widgetFrame.getHeight());
+		            	//hasKeyguardWidgetPagerRun = true;
+					//}
+				}
+			});*/
+
+			/*findAndHookMethod("com.htc.lockscreen.keyguard.KeyguardWidgetFrame", lpparam.classLoader, "setWidgetHeight", int.class, new XC_MethodHook() {
+				@Override
+				protected void beforeHookedMethod(MethodHookParam param) {
+					//Object object = getObjectField(param.thisObject, "mSlidingChallengeLayout");
+					//callMethod(object, "showChallenge", false);
+					XposedBridge.log("setWidgetHeight" + param.args[0]);
+				}
+			});*/
+
+			findAndHookMethod("com.htc.lockscreen.keyguard.SlidingChallengeLayout", lpparam.classLoader, "onMeasure", int.class, int.class, new XC_MethodHook() {
+				@Override
+				protected void afterHookedMethod(final MethodHookParam param) throws Throwable {
+					//View slidingChallengeLayout = (View) param.thisObject;
+	            	View mChallengeView = (View) getObjectField(param.thisObject, "mChallengeView");
+	            	//XposedBridge.log("BP: " + slidingChallengeLayout.getPaddingTop());
+	            	mChallengeView.setPadding(0, mChallengeView.getPaddingTop() - 81, 0, 0);
+					//int i = (int) callMethod(param.thisObject, "getMaxChallengeBottom", (Object[]) null);
+					//XposedBridge.log("getMaxChallengeBottom" + i);
+					//i = (int) callMethod(param.thisObject, "getMaxChallengeTop", (Object[]) null);
+					//XposedBridge.log("getMaxChallengeTop" + i);
+					//Rect mInsets = (Rect) param.args[0];
+					//mInsets.bottom = 200;
+					//XposedBridge.log(mInsets.flattenToString());
+				}
+			});
+		}
+        //else if (lpparam.packageName.contains("com.android.internal.widget")) {
+        	/*findAndHookMethod("com.android.internal.widget.LockPatternView", lpparam.classLoader, "onTouchEvent", MotionEvent.class, new XC_MethodHook() {
+	            @Override
+	            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+	            	XposedBridge.log(lpparam.packageName);
+	            	//XposedBridge.log("dispatchTouchEvent: " + param.getResult());
+	            	//View parent = (View) param.thisObject;
+	            	//View mLockPatternView = (View) getObjectField(param.thisObject, "mLockPatternView");
+	            	MotionEvent me = (MotionEvent) param.args[0];
+	            	//XposedBridge.log("dispatchTouchEvent: " + (-mLockPatternView.getLeft()) + ", " + (-mLockPatternView.getTop()));
+	            	//me.offsetLocation(-mLockPatternView.getLeft(), -mLockPatternView.getTop());
+	            	//parent.dispatchTouchEvent(me);
+	            	XposedBridge.log("LockPatternView: " + me.getY());
+	            	//XposedBridge.log("Delegate: " + ((View)param.thisObject).getTouchDelegate().onTouchEvent(me));
+	            	//param.setResult(false);
+	            }
+	        });*/
+        //}
     }
 }

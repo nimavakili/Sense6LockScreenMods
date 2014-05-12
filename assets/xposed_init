@@ -1,1 +1,2 @@
-com.minimv.senselockscreen.RemoveCarrier
+com.minimv.senselockscreen.XposedHooks
+com.minimv.senselockscreen.XposedResHooks
