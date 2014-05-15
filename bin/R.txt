@@ -4,6 +4,8 @@ int anim abc_slide_in_bottom 0x7f040002
 int anim abc_slide_in_top 0x7f040003
 int anim abc_slide_out_bottom 0x7f040004
 int anim abc_slide_out_top 0x7f040005
+int array bgPrefEntries 0x7f0d0000
+int array bgPrefValues 0x7f0d0001
 int attr actionBarDivider 0x7f01000b
 int attr actionBarItemBackground 0x7f01000c
 int attr actionBarSize 0x7f01000a
@@ -321,7 +323,7 @@ int layout abc_search_view 0x7f030016
 int layout activity_main 0x7f030017
 int layout fragment_main 0x7f030018
 int layout support_simple_spinner_dropdown_item 0x7f030019
-int menu main 0x7f0d0000
+int menu main 0x7f0e0000
 int string abc_action_bar_home_description 0x7f0b0001
 int string abc_action_bar_up_description 0x7f0b0002
 int string abc_action_menu_overflow_description 0x7f0b0003

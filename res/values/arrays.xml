@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="bgPrefEntries">
+        <item >Default</item>
+        <item >No Dimming</item>
+        <item >Always Dim</item>
+    </string-array>
+    <string-array name="bgPrefValues">
+        <item >default</item>
+        <item >noDim</item>
+        <item >dim</item>
+    </string-array>
+    
+</resources>

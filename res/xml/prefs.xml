@@ -1,39 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-	<CheckBoxPreference
-	   android:key="panelAlignBottom"
-	   android:title="Align Panel to the Bottom"
-	   android:summary="Shifts the panel to the bottom of the screen to match the Homescreen"
-	   android:disableDependentsState="true"
-	   android:defaultValue="false"/>
-	<CheckBoxPreference
-	   android:key="removeCarrier"
-	   android:title="Hide Carrier Label"
-	   android:summary="Removes carrier label at the bottom of lockscreen"
-	   android:disableDependentsState="true"
-	   android:dependency="panelAlignBottom"
-	   android:defaultValue="false"/>
-	<EditTextPreference
-	   android:key="carrierText"
-	   android:title="Set Custom Carrier Text"
-	   android:summary="Sets custom text for carrier label (empty for default)"
-	   android:dependency="removeCarrier"
-	   android:defaultValue=""/>
-	<EditTextPreference
-	   android:key="hintText"
-	   android:title="Set Custom Hint Text"
-	   android:summary="Sets custom text for hint label above the panel (empty for default)"
-	   android:defaultValue=""/>
-	<CheckBoxPreference
-	   android:key="nukeHidePanel"
-	   android:title="Disable Hide Shortcuts"
-	   android:summary="Disables the default hiding of shortcuts when swiping to unlock screen"
-	   android:disableDependentsState="true"
-	   android:defaultValue="false"/>
-	<CheckBoxPreference
-	   android:key="nukeHorizontalArrows"
-	   android:title="Disable Horizontal Arrows/Sliding"
-	   android:summary="Disables the left and right arrows when swiping to unlock screen"
-	   android:dependency="nukeHidePanel"
-	   android:defaultValue="false"/>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <!-- PreferenceCategory android:title="Security" -->
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:disableDependentsState="true"
+        android:key="panelAlignBottom"
+        android:summary="Shifts the panel to the bottom of the screen to match the Homescreen"
+        android:title="Align Panel to the Bottom" />
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="largeWidget"
+        android:summary="Increases the maximized size of widgets"
+        android:title="Increase the Size of Widgets" />
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:dependency="panelAlignBottom"
+        android:disableDependentsState="true"
+        android:key="hideCarrier"
+        android:summary="Hides carrier label at the bottom of lockscreen"
+        android:title="Hide Carrier Label" />
+    
+    <EditTextPreference
+        android:defaultValue=""
+        android:dependency="hideCarrier"
+        android:key="carrierText"
+        android:summary="Sets custom text for carrier label (empty for default)"
+        android:title="Set Custom Carrier Text" />
+
+    <EditTextPreference
+        android:defaultValue=""
+        android:key="hintText"
+        android:summary="Sets custom text for hint label above the panel (empty for default)"
+        android:title="Set Custom Hint Text" />
+
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:disableDependentsState="true"
+        android:key="nukeHidePanel"
+        android:summary="Disables the default hiding of shortcuts when swiping to unlock screen"
+        android:title="Disable Hide Shortcuts" />
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:dependency="nukeHidePanel"
+        android:key="nukeHorizontalArrows"
+        android:summary="Disables the left and right arrows when swiping to unlock screen"
+        android:title="Disable Horizontal Arrows/Sliding" />
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="hideWidgetFrame"
+        android:summary="Hides the border around widgets"
+        android:title="Hide Widget Frame Border" />
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="maximizeWidget"
+        android:summary="Maximizes widgets by default"
+        android:title="Maximize Widgets" />
+
+    <ListPreference
+        android:defaultValue="default"
+        android:entries="@array/bgPrefEntries"
+        android:entryValues="@array/bgPrefValues"
+        android:key="bgDimming"
+        android:title="Background Dimming" />
+
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="disablePatternScroll"
+        android:disableDependentsState="false"
+        android:summary="Disables the page scrolling when touching inside pattern input box"
+        android:title="Disable Page Scroll on Pattern Input" />
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="improvePattern"
+        android:dependency="disablePatternScroll"
+        android:summary="Fixes the touch drag not being registered when starting out of the input box"
+        android:title="Improve Pattern Touch Registration" />
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="movePattern"
+        android:summary="Moves the pattern input box up slightly (M7)"
+        android:title="Move Pattern Input Box Up" />
+
 </PreferenceScreen>

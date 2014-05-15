@@ -43,15 +43,28 @@ public class MainActivity extends Activity {
 					public void onSharedPreferenceChanged(
 						SharedPreferences sprefs, String key) {
 				        SharedPreferences.Editor editor = sprefs.edit();
-						if (key.equals("panelAlignBottom")) {
-							CheckBoxPreference preference = (CheckBoxPreference) findPreference("removeCarrier");
+						if (sprefs.getBoolean("panelAlignBottom", false)) {
+							CheckBoxPreference preference = (CheckBoxPreference) findPreference("hideCarrier");
 							preference.setChecked(true);
-							editor.putBoolean("removeCarrier", true);
+							editor.putBoolean("hideCarrier", true);
+							preference = (CheckBoxPreference) findPreference("largeWidget");
+							preference.setEnabled(true);
 						}
-						else if (key.equals("nukeHidePanel")) {
+						else {
+							CheckBoxPreference preference = (CheckBoxPreference) findPreference("largeWidget");
+							preference.setEnabled(false);
+							preference.setChecked(false);
+							editor.putBoolean("largeWidget", false);
+						}
+						if (sprefs.getBoolean("nukeHidePanel", false)) {
 							CheckBoxPreference preference = (CheckBoxPreference) findPreference("nukeHorizontalArrows");
 							preference.setChecked(true);
 							editor.putBoolean("nukeHorizontalArrows", true);
+						}
+						if (!sprefs.getBoolean("disablePatternScroll", false)) {
+							CheckBoxPreference preference = (CheckBoxPreference) findPreference("improvePattern");
+							preference.setChecked(false);
+							editor.putBoolean("improvePattern", false);
 						}
 						editor.commit();
 					}
