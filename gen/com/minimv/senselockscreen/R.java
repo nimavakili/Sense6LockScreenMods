@@ -19,6 +19,8 @@ public final class R {
     public static final class array {
         public static final int bgPrefEntries=0x7f0d0000;
         public static final int bgPrefValues=0x7f0d0001;
+        public static final int patternPrefEntries=0x7f0d0002;
+        public static final int patternPrefValues=0x7f0d0003;
     }
     public static final class attr {
         /**  Custom divider drawable to use for elements in the action bar. 
@@ -888,10 +890,6 @@ containing a value of this type.
  Minimum width of the search view text entry area. 
          */
         public static final int abc_search_view_text_min_width=0x7f09000c;
-        /**  Default screen margins, per the Android Design guidelines. 
-         */
-        public static final int activity_horizontal_margin=0x7f090011;
-        public static final int activity_vertical_margin=0x7f090012;
     }
     public static final class drawable {
         public static final int abc_ab_bottom_solid_dark_holo=0x7f020000;

@@ -10,5 +10,17 @@
         <item >noDim</item>
         <item >dim</item>
     </string-array>
+    <string-array name="patternPrefEntries">
+        <item >Default</item>
+        <item >Move Up</item>
+        <item >Move Down 1 Step</item>
+        <item >Move Down 2 Steps</item>
+        </string-array>
+    <string-array name="patternPrefValues">
+        <item >default</item>
+        <item >up</item>
+        <item >middle</item>
+        <item >down</item>
+        </string-array>
     
 </resources>

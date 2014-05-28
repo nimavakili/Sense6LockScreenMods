@@ -6,6 +6,8 @@ int anim abc_slide_out_bottom 0x7f040004
 int anim abc_slide_out_top 0x7f040005
 int array bgPrefEntries 0x7f0d0000
 int array bgPrefValues 0x7f0d0001
+int array patternPrefEntries 0x7f0d0002
+int array patternPrefValues 0x7f0d0003
 int attr actionBarDivider 0x7f01000b
 int attr actionBarItemBackground 0x7f01000c
 int attr actionBarSize 0x7f01000a
@@ -140,8 +142,6 @@ int dimen abc_dropdownitem_text_padding_right 0x7f09000f
 int dimen abc_panel_menu_list_width 0x7f09000b
 int dimen abc_search_view_preferred_width 0x7f09000d
 int dimen abc_search_view_text_min_width 0x7f09000c
-int dimen activity_horizontal_margin 0x7f090011
-int dimen activity_vertical_margin 0x7f090012
 int drawable abc_ab_bottom_solid_dark_holo 0x7f020000
 int drawable abc_ab_bottom_solid_light_holo 0x7f020001
 int drawable abc_ab_bottom_transparent_dark_holo 0x7f020002

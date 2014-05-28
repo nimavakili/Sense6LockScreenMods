@@ -55,7 +55,7 @@
         android:defaultValue="false"
         android:key="maximizeWidget"
         android:summary="Maximizes widgets by default"
-        android:title="Maximize Widgets" />
+        android:title="Always Maximize Widgets" />
 
     <ListPreference
         android:defaultValue="default"
@@ -76,10 +76,11 @@
         android:dependency="disablePatternScroll"
         android:summary="Fixes the touch drag not being registered when starting out of the input box"
         android:title="Improve Pattern Touch Registration" />
-    <CheckBoxPreference
-        android:defaultValue="false"
+    <ListPreference
+        android:defaultValue="default"
+        android:entries="@array/patternPrefEntries"
+        android:entryValues="@array/patternPrefValues"
         android:key="movePattern"
-        android:summary="Moves the pattern input box up slightly (M7)"
-        android:title="Move Pattern Input Box Up" />
-
+        android:summary="Moves the pattern input box up or down (M7)"
+        android:title="Move Pattern Input Box" />
 </PreferenceScreen>

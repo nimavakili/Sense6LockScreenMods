@@ -68,7 +68,13 @@ public class XposedResHooks implements IXposedHookZygoteInit, IXposedHookInitPac
 	                }
 	            	if (!hintText.equals("")) {
 		                int count = panel.getChildCount();
-		                TextView mHint = (TextView) panel.getChildAt(count-2);
+	        			TextView mHint = null;
+	        			try {
+	        				mHint = (TextView) panel.getChildAt(count-2);
+	        			}
+	        			catch (Exception e) {
+	        				mHint = (TextView) ((FrameLayout) panel.getChildAt(count-2)).getChildAt(0);
+	        			}
 		                mHint.setText(hintText);
 		                mHint.setVisibility(View.VISIBLE);
 		                mHint.setAlpha(1.0f);

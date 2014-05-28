@@ -25,8 +25,8 @@ import android.widget.TextView;
 public class XposedHooks implements IXposedHookLoadPackage {
 
 	private XSharedPreferences prefs;
-	private boolean hideCarrier, panelAlignBottom, nukeHidePanel, nukeHorizontalArrows, hideWidgetFrame, maximizeWidget, disablePatternScroll, movePattern, improvePattern;
-	private String carrierText, hintText, bgDimming;
+	private boolean hideCarrier, panelAlignBottom, nukeHidePanel, nukeHorizontalArrows, hideWidgetFrame, maximizeWidget, disablePatternScroll, improvePattern;
+	private String carrierText, hintText, bgDimming, movePattern;
 	
 	public XposedHooks() {
 		prefs = new XSharedPreferences("com.minimv.senselockscreen");
@@ -96,7 +96,13 @@ public class XposedHooks implements IXposedHookLoadPackage {
         			RelativeLayout panel = (RelativeLayout) param.thisObject;
         			boolean visibility = (Boolean) param.args[0];
         			int count = panel.getChildCount();
-        			TextView mHint = (TextView) panel.getChildAt(count-2);
+        			TextView mHint = null;
+        			try {
+        				mHint = (TextView) panel.getChildAt(count-2);
+        			}
+        			catch (Exception e) {
+        				mHint = (TextView) ((FrameLayout) panel.getChildAt(count-2)).getChildAt(0);
+        			}
         			if (visibility && !hintText.equals("")) {
         				mHint.setText(hintText);
         				mHint.setVisibility(View.VISIBLE);
@@ -238,7 +244,7 @@ public class XposedHooks implements IXposedHookLoadPackage {
         				ViewFlipper mKeyguardSecurityContainer = (ViewFlipper) getObjectField(mViewStateManager, "mKeyguardSecurityContainer");
         				View security = mKeyguardSecurityContainer.getChildAt(mKeyguardSecurityContainer.getDisplayedChild());
         				Method isChallengeShowing = findMethodBestMatch(findClass("com.htc.lockscreen.keyguard.KeyguardViewStateManager", lpparam.classLoader), "isChallengeShowing");
-        				boolean mChallengeShowing = (boolean) isChallengeShowing.invoke(mViewStateManager, (Object[]) null);
+        				boolean mChallengeShowing = (Boolean) isChallengeShowing.invoke(mViewStateManager, (Object[]) null);
         				int[] loc = new int[2];
         				security.getLocationOnScreen(loc);
         				MotionEvent me = (MotionEvent) param.args[0];
@@ -280,7 +286,7 @@ public class XposedHooks implements IXposedHookLoadPackage {
 	        			ViewFlipper flipper = (ViewFlipper) getFlipper.invoke(mChallengeView, (Object[]) null);
 	        			View security = flipper.getChildAt(flipper.getDisplayedChild());
 	        			Method isChallengeShowing = findMethodBestMatch(findClass("com.htc.lockscreen.keyguard.SlidingChallengeLayout", lpparam.classLoader), "isChallengeShowing");
-	        			boolean mChallengeShowing = (boolean) isChallengeShowing.invoke(param.thisObject, (Object[]) null);
+	        			boolean mChallengeShowing = (Boolean) isChallengeShowing.invoke(param.thisObject, (Object[]) null);
 	        			if (security.getClass().getName().contains("HtcPatternUnlockView") && mChallengeShowing) {
 	        				ViewGroup parent = (ViewGroup) ((ViewGroup) ((ViewGroup) ((ViewGroup) security).getChildAt(0)).getChildAt(0)).getChildAt(0);
 	        				View mLockPatternView = parent.getChildAt(parent.getChildCount() - 1);
@@ -335,10 +341,22 @@ public class XposedHooks implements IXposedHookLoadPackage {
         		@Override
         		protected void afterHookedMethod(final MethodHookParam param) throws Throwable {
         			prefs.reload();
-        			movePattern = prefs.getBoolean("movePattern", false);
-        			if (movePattern) {
+        			//movePattern = prefs.getBoolean("movePattern", false);
+        			movePattern = prefs.getString("movePattern", "default");
+        			if (movePattern.equals("up")) {
         				View mChallengeView = (View) getObjectField(param.thisObject, "mChallengeView");
+            			//XposedBridge.log("TP: " + mChallengeView.getPaddingTop());
         				mChallengeView.setPadding(0, mChallengeView.getPaddingTop() - 81, 0, 0);
+        			}
+        			else if (movePattern.equals("middle")) {
+        				View mChallengeView = (View) getObjectField(param.thisObject, "mChallengeView");
+            			//XposedBridge.log("TP: " + mChallengeView.getPaddingTop());
+        				mChallengeView.setPadding(0, mChallengeView.getPaddingTop() + 144 - 81, 0, 0);
+        			}
+        			else if (movePattern.equals("down")) {
+        				View mChallengeView = (View) getObjectField(param.thisObject, "mChallengeView");
+            			//XposedBridge.log("TP: " + mChallengeView.getPaddingTop());
+        				mChallengeView.setPadding(0, mChallengeView.getPaddingTop() + 144, 0, 0);
         			}
         		}
         	});
