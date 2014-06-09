@@ -22,5 +22,15 @@
         <item >middle</item>
         <item >down</item>
         </string-array>
+    <string-array name="dwPrefEntries">
+        <item >Default</item>
+        <item >Blank Default Widget</item>
+        <item >Remove Default Widget</item>
+        </string-array>
+    <string-array name="dwPrefValues">
+        <item >default</item>
+        <item >invisible</item>
+        <item >gone</item>
+        </string-array>
     
 </resources>

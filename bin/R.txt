@@ -6,6 +6,8 @@ int anim abc_slide_out_bottom 0x7f040004
 int anim abc_slide_out_top 0x7f040005
 int array bgPrefEntries 0x7f0d0000
 int array bgPrefValues 0x7f0d0001
+int array dwPrefEntries 0x7f0d0004
+int array dwPrefValues 0x7f0d0005
 int array patternPrefEntries 0x7f0d0002
 int array patternPrefValues 0x7f0d0003
 int attr actionBarDivider 0x7f01000b

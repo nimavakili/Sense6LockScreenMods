@@ -56,7 +56,13 @@
         android:key="maximizeWidget"
         android:summary="Maximizes widgets by default"
         android:title="Always Maximize Widgets" />
-
+    <ListPreference
+        android:defaultValue="default"
+        android:entries="@array/dwPrefEntries"
+        android:entryValues="@array/dwPrefValues"
+        android:key="defaultWidget"
+        android:title="Default Widget" />
+    
     <ListPreference
         android:defaultValue="default"
         android:entries="@array/bgPrefEntries"

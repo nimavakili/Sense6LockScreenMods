@@ -26,7 +26,7 @@ public class XposedHooks implements IXposedHookLoadPackage {
 
 	private XSharedPreferences prefs;
 	private boolean hideCarrier, panelAlignBottom, nukeHidePanel, nukeHorizontalArrows, hideWidgetFrame, maximizeWidget, disablePatternScroll, improvePattern;
-	private String carrierText, hintText, bgDimming, movePattern;
+	private String carrierText, hintText, bgDimming, movePattern, defaultWidget;
 	
 	public XposedHooks() {
 		prefs = new XSharedPreferences("com.minimv.senselockscreen");
@@ -357,6 +357,42 @@ public class XposedHooks implements IXposedHookLoadPackage {
         				View mChallengeView = (View) getObjectField(param.thisObject, "mChallengeView");
             			//XposedBridge.log("TP: " + mChallengeView.getPaddingTop());
         				mChallengeView.setPadding(0, mChallengeView.getPaddingTop() + 144, 0, 0);
+        			}
+        		}
+        	});
+        }
+        catch (XposedHelpers.ClassNotFoundError e) {
+        	XposedBridge.log(e);
+        }
+
+        try {
+        	findAndHookMethod("com.htc.lockscreen.keyguard.PagedView", lpparam.classLoader, "isDefaultPage", int.class, new XC_MethodHook() {
+        		@Override
+        		protected void afterHookedMethod(final MethodHookParam param) throws Throwable {
+        			if ((Boolean) param.getResult()) {
+            			prefs.reload();
+            			defaultWidget = prefs.getString("defaultWidget", "default");
+            			if (defaultWidget.equals("invisible")) {
+    	        			ViewGroup defaultWidget = (ViewGroup) param.thisObject;
+    	        			View localView = defaultWidget.getChildAt((Integer) param.args[0]);
+    	            		localView.setAlpha(0);
+            			}
+        			}
+        		}
+        	});
+        }
+        catch (XposedHelpers.ClassNotFoundError e) {
+        	XposedBridge.log(e);
+        }
+
+        try {
+        	findAndHookMethod("com.htc.lockscreen.keyguard.KeyguardHostView", lpparam.classLoader, "addDefaultStatusWidget", int.class, new XC_MethodHook() {
+        		@Override
+        		protected void beforeHookedMethod(final MethodHookParam param) throws Throwable {
+        			prefs.reload();
+        			defaultWidget = prefs.getString("defaultWidget", "default");
+        			if (defaultWidget.equals("gone")) {
+        				param.setResult(null);
         			}
         		}
         	});

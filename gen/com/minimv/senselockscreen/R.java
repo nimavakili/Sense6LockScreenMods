@@ -19,6 +19,8 @@ public final class R {
     public static final class array {
         public static final int bgPrefEntries=0x7f0d0000;
         public static final int bgPrefValues=0x7f0d0001;
+        public static final int dwPrefEntries=0x7f0d0004;
+        public static final int dwPrefValues=0x7f0d0005;
         public static final int patternPrefEntries=0x7f0d0002;
         public static final int patternPrefValues=0x7f0d0003;
     }
