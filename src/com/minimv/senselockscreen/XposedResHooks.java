@@ -1,6 +1,7 @@
 package com.minimv.senselockscreen;
 
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -15,7 +16,7 @@ public class XposedResHooks implements IXposedHookZygoteInit, IXposedHookInitPac
 
 	//private static String MODULE_PATH = null;
 	private XSharedPreferences prefs;
-	private boolean panelAlignBottom, largeWidget;
+	private boolean panelAlignBottom, largeWidget, hideTopShadow, hideBottomShadow;
 	private String hintText;
 	
 	public XposedResHooks() {
@@ -55,9 +56,14 @@ public class XposedResHooks implements IXposedHookZygoteInit, IXposedHookInitPac
 		        public void handleLayoutInflated(LayoutInflatedParam liparam) throws Throwable {
 	            	prefs.reload();
 	            	panelAlignBottom = prefs.getBoolean("panelAlignBottom", false);
+	            	hideBottomShadow = prefs.getBoolean("hideBottomShadow", false);
 	            	hintText = prefs.getString("hintText", "");
 	            	RelativeLayout panel = (RelativeLayout) liparam.view;
 	                View panelBg = (View) panel.getChildAt(0);
+	                //View shortcuts = (View) panel.getChildAt(2);
+	                if (hideBottomShadow) {
+	                	panelBg.setVisibility(View.INVISIBLE);
+	                }
 	                if (panelAlignBottom) {
 	                	FrameLayout.LayoutParams localLayoutParams = (FrameLayout.LayoutParams) panel.getLayoutParams();
 	                	RelativeLayout.LayoutParams localLayoutParamsBg = (RelativeLayout.LayoutParams) panelBg.getLayoutParams();
@@ -85,5 +91,23 @@ public class XposedResHooks implements IXposedHookZygoteInit, IXposedHookInitPac
 	    catch (Exception e) {
 			XposedBridge.log(e);
 		}
-	}
+
+	    try {
+		    resparam.res.hookLayout("com.htc.lockscreen", "layout", "main_lockscreen_keyguard_host_view", new XC_LayoutInflated() {
+		        @Override
+		        public void handleLayoutInflated(LayoutInflatedParam liparam) throws Throwable {
+	            	prefs.reload();
+	            	hideTopShadow = prefs.getBoolean("hideTopShadow", false);
+	                if (hideTopShadow) {
+		            	ViewGroup panel = (ViewGroup) liparam.view;
+		                View topBg = (View) ((ViewGroup) panel.getChildAt(0)).getChildAt(0);
+		                topBg.setVisibility(View.INVISIBLE);
+	                }
+		        }
+		    });
+		}
+	    catch (Exception e) {
+			XposedBridge.log(e);
+		}
+    }
 }

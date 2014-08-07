@@ -25,7 +25,7 @@ import android.widget.TextView;
 public class XposedHooks implements IXposedHookLoadPackage {
 
 	private XSharedPreferences prefs;
-	private boolean hideCarrier, panelAlignBottom, nukeHidePanel, nukeHorizontalArrows, hideWidgetFrame, maximizeWidget, disablePatternScroll, improvePattern;
+	private boolean hideCarrier, panelAlignBottom, nukeHidePanel, nukeHorizontalArrows, hideWidgetFrame, maximizeWidget, disablePatternScroll, improvePattern, hidePanel, unlockSensitive;
 	private String carrierText, hintText, bgDimming, movePattern, defaultWidget;
 	
 	public XposedHooks() {
@@ -91,6 +91,7 @@ public class XposedHooks implements IXposedHookLoadPackage {
         		@Override
         		protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
         			prefs.reload();
+        			hidePanel = prefs.getBoolean("hidePanel", false);
         			nukeHidePanel = prefs.getBoolean("nukeHidePanel", false);
         			hintText = prefs.getString("hintText", "");
         			RelativeLayout panel = (RelativeLayout) param.thisObject;
@@ -111,7 +112,10 @@ public class XposedHooks implements IXposedHookLoadPackage {
         			else {
         				mHint.setAlpha(0.0f);
         			}
-        			if (nukeHidePanel) {
+        			if (hidePanel) {
+        				param.args[0] = false;
+        			}
+        			else if (nukeHidePanel) {
         				param.setResult(null);
         			}
         		}
@@ -325,9 +329,15 @@ public class XposedHooks implements IXposedHookLoadPackage {
         		protected void afterHookedMethod(MethodHookParam param) {
         			prefs.reload();
         			maximizeWidget = prefs.getBoolean("maximizeWidget", false);
-        			if (maximizeWidget) {
+        			hidePanel = prefs.getBoolean("hidePanel", false);
+        			boolean isByPassLockScreen = (Boolean) callMethod(param.thisObject, "isByPassLockScreen");
+        			if (maximizeWidget && !isByPassLockScreen) {
         				Object object = getObjectField(param.thisObject, "mSlidingChallengeLayout");
         				callMethod(object, "showChallenge", false);
+        			}
+        			if (hidePanel) {
+        				Object object = getObjectField(param.thisObject, "mFooterPanel");
+        				callMethod(object, "updateShortcutVisible", false);
         			}
         		}
         	});
@@ -393,6 +403,22 @@ public class XposedHooks implements IXposedHookLoadPackage {
         			defaultWidget = prefs.getString("defaultWidget", "default");
         			if (defaultWidget.equals("gone")) {
         				param.setResult(null);
+        			}
+        		}
+        	});
+        }
+        catch (XposedHelpers.ClassNotFoundError e) {
+        	XposedBridge.log(e);
+        }
+
+        try {
+        	findAndHookMethod("com.htc.lockscreen.drag.SpeedRecorder", lpparam.classLoader, "getUnlockDistance", new XC_MethodHook() {
+        		@Override
+        		protected void beforeHookedMethod(final MethodHookParam param) throws Throwable {
+        			prefs.reload();
+        			unlockSensitive = prefs.getBoolean("unlockSensitive", false);
+        			if (unlockSensitive) {
+        				param.setResult(100);
         			}
         		}
         	});

@@ -7,7 +7,7 @@
         android:disableDependentsState="true"
         android:key="panelAlignBottom"
         android:summary="Shifts the panel to the bottom of the screen to match the Homescreen"
-        android:title="Align Panel to the Bottom" />
+        android:title="Align Shortcut Panel to the Bottom" />
     <CheckBoxPreference
         android:defaultValue="false"
         android:key="largeWidget"
@@ -36,13 +36,15 @@
 
     <CheckBoxPreference
         android:defaultValue="false"
-        android:disableDependentsState="true"
-        android:key="nukeHidePanel"
-        android:summary="Disables the default hiding of shortcuts when swiping to unlock screen"
-        android:title="Disable Hide Shortcuts" />
+        android:key="hidePanel"
+        android:title="Hide Shortcuts" />
     <CheckBoxPreference
         android:defaultValue="false"
-        android:dependency="nukeHidePanel"
+        android:key="nukeHidePanel"
+        android:summary="Disables the default hiding of shortcuts when swiping to unlock screen"
+        android:title="Disable Hide Shortcuts on Swipe" />
+    <CheckBoxPreference
+        android:defaultValue="false"
         android:key="nukeHorizontalArrows"
         android:summary="Disables the left and right arrows when swiping to unlock screen"
         android:title="Disable Horizontal Arrows/Sliding" />
@@ -69,7 +71,23 @@
         android:entryValues="@array/bgPrefValues"
         android:key="bgDimming"
         android:title="Background Dimming" />
-
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="hideTopShadow"
+        android:summary="Removes the background shadow at top"
+        android:title="Remove Shadow at Top" />
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="hideBottomShadow"
+        android:summary="Removes the background shadow at bottom"
+        android:title="Remove Shadow at Bottom" />
+    
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="unlockSensitive"
+        android:disableDependentsState="false"
+        android:summary="Decreases the minimum unlock drag distance required"
+        android:title="Improve Unlock Swipe" />
     <CheckBoxPreference
         android:defaultValue="false"
         android:key="disablePatternScroll"

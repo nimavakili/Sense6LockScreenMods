@@ -2,7 +2,7 @@
 <resources>
 
     <string name="app_name">Sense 6 Lockscreen Mods</string>
-    <string name="author">Nima Vakili | 2014</string>
+    <string name="author"><i>Nima Vakili | 2014</i></string>
     <string name="action_settings">Settings</string>
 
 </resources>

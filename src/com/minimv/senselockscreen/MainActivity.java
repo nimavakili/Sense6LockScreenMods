@@ -40,36 +40,55 @@ public class MainActivity extends Activity {
 	        SharedPreferences.OnSharedPreferenceChangeListener spChanged = new
 	        	SharedPreferences.OnSharedPreferenceChangeListener() {
 					@Override
-					public void onSharedPreferenceChanged(
-						SharedPreferences sprefs, String key) {
-				        SharedPreferences.Editor editor = sprefs.edit();
-						if (sprefs.getBoolean("panelAlignBottom", false)) {
-							CheckBoxPreference preference = (CheckBoxPreference) findPreference("hideCarrier");
-							preference.setChecked(true);
-							editor.putBoolean("hideCarrier", true);
-							preference = (CheckBoxPreference) findPreference("largeWidget");
-							preference.setEnabled(true);
-						}
-						else {
-							CheckBoxPreference preference = (CheckBoxPreference) findPreference("largeWidget");
-							preference.setEnabled(false);
-							preference.setChecked(false);
-							editor.putBoolean("largeWidget", false);
-						}
-						if (sprefs.getBoolean("nukeHidePanel", false)) {
-							CheckBoxPreference preference = (CheckBoxPreference) findPreference("nukeHorizontalArrows");
-							preference.setChecked(true);
-							editor.putBoolean("nukeHorizontalArrows", true);
-						}
-						if (!sprefs.getBoolean("disablePatternScroll", false)) {
-							CheckBoxPreference preference = (CheckBoxPreference) findPreference("improvePattern");
-							preference.setChecked(false);
-							editor.putBoolean("improvePattern", false);
-						}
-						editor.commit();
+					public void onSharedPreferenceChanged(SharedPreferences sprefs, String key) {
+						updatePreferences(sprefs);
 					}
 			};
 			prefs.registerOnSharedPreferenceChangeListener(spChanged);
+			updatePreferences(prefs);
+		}
+		
+		private void updatePreferences(SharedPreferences sprefs) {
+	        SharedPreferences.Editor editor = sprefs.edit();
+			if (sprefs.getBoolean("panelAlignBottom", false)) {
+				CheckBoxPreference preference = (CheckBoxPreference) findPreference("hideCarrier");
+				preference.setChecked(true);
+				editor.putBoolean("hideCarrier", true);
+				preference = (CheckBoxPreference) findPreference("largeWidget");
+				preference.setEnabled(true);
+			}
+			else {
+				CheckBoxPreference preference = (CheckBoxPreference) findPreference("largeWidget");
+				preference.setEnabled(false);
+				preference.setChecked(false);
+				editor.putBoolean("largeWidget", false);
+			}
+			if (sprefs.getBoolean("hidePanel", false)) {
+				CheckBoxPreference preference = (CheckBoxPreference) findPreference("nukeHidePanel");
+				preference.setChecked(false);
+				preference.setEnabled(false);
+				editor.putBoolean("nukeHidePanel", false);
+			}
+			else {
+				CheckBoxPreference preference = (CheckBoxPreference) findPreference("nukeHidePanel");
+				preference.setEnabled(true);
+			}
+			if (sprefs.getBoolean("nukeHidePanel", false)) {
+				CheckBoxPreference preference = (CheckBoxPreference) findPreference("nukeHorizontalArrows");
+				preference.setChecked(true);
+				preference.setEnabled(false);
+				editor.putBoolean("nukeHorizontalArrows", true);
+			}
+			else {
+				CheckBoxPreference preference = (CheckBoxPreference) findPreference("nukeHorizontalArrows");
+				preference.setEnabled(true);
+			}
+			if (!sprefs.getBoolean("disablePatternScroll", false)) {
+				CheckBoxPreference preference = (CheckBoxPreference) findPreference("improvePattern");
+				preference.setChecked(false);
+				editor.putBoolean("improvePattern", false);
+			}
+			editor.commit();
 		}
 	}
 }
