@@ -4,6 +4,11 @@
     <!-- PreferenceCategory android:title="Security" -->
     <CheckBoxPreference
         android:defaultValue="false"
+        android:key="forceDoubleTap"
+        android:summary="Enables double tap to sleep in stock M7 ROM"
+        android:title="Force Enable Double Tap to Sleep" />
+    <CheckBoxPreference
+        android:defaultValue="false"
         android:disableDependentsState="true"
         android:key="panelAlignBottom"
         android:summary="Shifts the panel to the bottom of the screen to match the Homescreen"

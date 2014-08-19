@@ -25,7 +25,7 @@ import android.widget.TextView;
 public class XposedHooks implements IXposedHookLoadPackage {
 
 	private XSharedPreferences prefs;
-	private boolean hideCarrier, panelAlignBottom, nukeHidePanel, nukeHorizontalArrows, hideWidgetFrame, maximizeWidget, disablePatternScroll, improvePattern, hidePanel, unlockSensitive;
+	private boolean hideCarrier, panelAlignBottom, nukeHidePanel, nukeHorizontalArrows, hideWidgetFrame, maximizeWidget, disablePatternScroll, improvePattern, hidePanel, unlockSensitive, forceDoubleTap;
 	private String carrierText, hintText, bgDimming, movePattern, defaultWidget;
 	
 	public XposedHooks() {
@@ -33,7 +33,8 @@ public class XposedHooks implements IXposedHookLoadPackage {
 	}
 	
 	public void handleLoadPackage(final LoadPackageParam lpparam) throws Throwable {
-        if (!lpparam.packageName.equals("com.htc.lockscreen")) {
+		
+		if (!lpparam.packageName.equals("com.htc.lockscreen")) {
         	return;
         }
 
@@ -419,6 +420,22 @@ public class XposedHooks implements IXposedHookLoadPackage {
         			unlockSensitive = prefs.getBoolean("unlockSensitive", false);
         			if (unlockSensitive) {
         				param.setResult(100);
+        			}
+        		}
+        	});
+        }
+        catch (XposedHelpers.ClassNotFoundError e) {
+        	XposedBridge.log(e);
+        }
+
+        try {
+        	findAndHookMethod("com.htc.lockscreen.ctrl.EasyAccessCtrl", lpparam.classLoader, "isSupportDoubleTap", new XC_MethodHook() {
+        		@Override
+        		protected void beforeHookedMethod(final MethodHookParam param) throws Throwable {
+        			prefs.reload();
+        			forceDoubleTap = prefs.getBoolean("forceDoubleTap", false);
+        			if (forceDoubleTap) {
+        				param.setResult(true);
         			}
         		}
         	});
