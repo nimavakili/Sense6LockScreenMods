@@ -68,14 +68,14 @@
         android:entries="@array/dwPrefEntries"
         android:entryValues="@array/dwPrefValues"
         android:key="defaultWidget"
-        android:title="Default Widget" />
+        android:title="Change Default Widget" />
     
     <ListPreference
         android:defaultValue="default"
         android:entries="@array/bgPrefEntries"
         android:entryValues="@array/bgPrefValues"
         android:key="bgDimming"
-        android:title="Background Dimming" />
+        android:title="Adjust Background Dimming" />
     <CheckBoxPreference
         android:defaultValue="false"
         android:key="hideTopShadow"
@@ -92,7 +92,13 @@
         android:key="unlockSensitive"
         android:disableDependentsState="false"
         android:summary="Decreases the minimum unlock drag distance required"
-        android:title="Improve Unlock Swipe" />
+        android:title="Improve Unlock Swipe I" />
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="improveUnlock"
+        android:disableDependentsState="false"
+        android:summary="Fixes the unlock swipe not being registered when not on stock widget"
+        android:title="Improve Unlock Swipe II" />
     <CheckBoxPreference
         android:defaultValue="false"
         android:key="disablePatternScroll"

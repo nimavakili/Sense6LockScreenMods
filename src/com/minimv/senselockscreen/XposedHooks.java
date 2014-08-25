@@ -25,7 +25,7 @@ import android.widget.TextView;
 public class XposedHooks implements IXposedHookLoadPackage {
 
 	private XSharedPreferences prefs;
-	private boolean hideCarrier, panelAlignBottom, nukeHidePanel, nukeHorizontalArrows, hideWidgetFrame, maximizeWidget, disablePatternScroll, improvePattern, hidePanel, unlockSensitive, forceDoubleTap;
+	private boolean hideCarrier, panelAlignBottom, nukeHidePanel, nukeHorizontalArrows, hideWidgetFrame, maximizeWidget, disablePatternScroll, improvePattern, hidePanel, unlockSensitive, forceDoubleTap, improveUnlock;
 	private String carrierText, hintText, bgDimming, movePattern, defaultWidget;
 	
 	public XposedHooks() {
@@ -253,6 +253,7 @@ public class XposedHooks implements IXposedHookLoadPackage {
         				int[] loc = new int[2];
         				security.getLocationOnScreen(loc);
         				MotionEvent me = (MotionEvent) param.args[0];
+        				XposedBridge.log("startScrolling: " + mChallengeShowing);
         				if (security.getClass().getName().contains("HtcPatternUnlockView") && mChallengeShowing && me.getRawY() > loc[1]) {
         					param.setResult(null);
         				}
@@ -443,5 +444,51 @@ public class XposedHooks implements IXposedHookLoadPackage {
         catch (XposedHelpers.ClassNotFoundError e) {
         	XposedBridge.log(e);
         }
-    }
+
+        try {
+        	findAndHookMethod("com.htc.lockscreen.ui.EasyAccessLayout", lpparam.classLoader, "canStartDrag", int.class, int.class, new XC_MethodHook() {
+        		@Override
+        		protected void beforeHookedMethod(final MethodHookParam param) throws Throwable {
+        			prefs.reload();
+        			improveUnlock = prefs.getBoolean("improveUnlock", false);
+        			if (improveUnlock) {
+	    				Object mViewStateManager = getObjectField(param.thisObject, "mViewStateManager");
+	    				ViewFlipper mKeyguardSecurityContainer = (ViewFlipper) getObjectField(mViewStateManager, "mKeyguardSecurityContainer");
+	    				View security = mKeyguardSecurityContainer.getChildAt(mKeyguardSecurityContainer.getDisplayedChild());
+	    				int[] loc = new int[2];
+	    				security.getLocationOnScreen(loc);
+	    				if ((Integer) param.args[1] < loc[1]) {
+	            			//XposedBridge.log("canStartDrag");
+	    					param.setResult(false);
+	    				}
+        			}
+        		}
+        	});
+        }
+        catch (XposedHelpers.ClassNotFoundError e) {
+        	XposedBridge.log(e);
+        }
+
+        try {
+        	findAndHookMethod("com.htc.lockscreen.ui.EasyAccessLayout", lpparam.classLoader, "checkDragCondition", new XC_MethodHook() {
+        		@Override
+        		protected void beforeHookedMethod(final MethodHookParam param) throws Throwable {
+        			prefs.reload();
+        			improveUnlock = prefs.getBoolean("improveUnlock", false);
+        			if (improveUnlock) {
+	    				Object mViewStateManager = getObjectField(param.thisObject, "mViewStateManager");
+	    			    boolean bool = true;
+	    			    if (!(Boolean) callMethod(mViewStateManager, "isSeurityModeWithFooter", callMethod(mViewStateManager, "getCurSecurityMode"))) {
+	    	        		//XposedBridge.log("checkDragCondition");
+	    	        		bool = false;
+	    			    }
+	    			    param.setResult(bool);
+        			}
+        		}
+        	});
+        }
+        catch (XposedHelpers.ClassNotFoundError e) {
+        	XposedBridge.log(e);
+        }
+	}
 }
