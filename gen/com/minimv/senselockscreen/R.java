@@ -15,6 +15,8 @@ public final class R {
         public static final int dwPrefValues=0x7f050005;
         public static final int patternPrefEntries=0x7f050002;
         public static final int patternPrefValues=0x7f050003;
+        public static final int usSensitivityEntries=0x7f050006;
+        public static final int usSensitivityValues=0x7f050007;
     }
     public static final class attr {
     }

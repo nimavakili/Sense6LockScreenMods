@@ -31,6 +31,16 @@
         <item >default</item>
         <item >invisible</item>
         <item >gone</item>
-        </string-array>
+    </string-array>
+    <string-array name="usSensitivityEntries">
+        <item >Default</item>
+        <item >Less Sensitive (Increase Distance)</item>
+        <item >More Sensitive (Decrease Distance)</item>
+    </string-array>
+    <string-array name="usSensitivityValues">
+        <item >default</item>
+        <item >less</item>
+        <item >more</item>
+    </string-array>
     
 </resources>

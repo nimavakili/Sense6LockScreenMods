@@ -87,18 +87,19 @@
         android:summary="Removes the background shadow at bottom"
         android:title="Remove Shadow at Bottom" />
     
-    <CheckBoxPreference
-        android:defaultValue="false"
-        android:key="unlockSensitive"
-        android:disableDependentsState="false"
-        android:summary="Decreases the minimum unlock drag distance required"
-        android:title="Improve Unlock Swipe I" />
+    <ListPreference
+        android:defaultValue="default"
+        android:entries="@array/usSensitivityEntries"
+        android:entryValues="@array/usSensitivityValues"
+        android:key="unlockSensitivity"
+        android:summary="To change the minimum unlock drag distance required"
+        android:title="Change Unlock Swipe Sensitivity" />
     <CheckBoxPreference
         android:defaultValue="false"
         android:key="improveUnlock"
         android:disableDependentsState="false"
-        android:summary="Fixes the unlock swipe not being registered when not on stock widget"
-        android:title="Improve Unlock Swipe II" />
+        android:summary="Fixes the unlock swipe not being registered when not on stock widget or when widget is maximized. You won't be able to scroll the widgets (if they have scrollable content) on the bottom half of the screen."
+        android:title="Improve Unlock Swipe" />
     <CheckBoxPreference
         android:defaultValue="false"
         android:key="disablePatternScroll"

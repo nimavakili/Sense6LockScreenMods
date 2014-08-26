@@ -25,8 +25,8 @@ import android.widget.TextView;
 public class XposedHooks implements IXposedHookLoadPackage {
 
 	private XSharedPreferences prefs;
-	private boolean hideCarrier, panelAlignBottom, nukeHidePanel, nukeHorizontalArrows, hideWidgetFrame, maximizeWidget, disablePatternScroll, improvePattern, hidePanel, unlockSensitive, forceDoubleTap, improveUnlock;
-	private String carrierText, hintText, bgDimming, movePattern, defaultWidget;
+	private boolean hideCarrier, panelAlignBottom, nukeHidePanel, nukeHorizontalArrows, hideWidgetFrame, maximizeWidget, disablePatternScroll, improvePattern, hidePanel, forceDoubleTap, improveUnlock;
+	private String carrierText, hintText, bgDimming, movePattern, defaultWidget, unlockSensitivity;
 	
 	public XposedHooks() {
 		prefs = new XSharedPreferences("com.minimv.senselockscreen");
@@ -418,10 +418,18 @@ public class XposedHooks implements IXposedHookLoadPackage {
         		@Override
         		protected void beforeHookedMethod(final MethodHookParam param) throws Throwable {
         			prefs.reload();
-        			unlockSensitive = prefs.getBoolean("unlockSensitive", false);
-        			if (unlockSensitive) {
+        			unlockSensitivity = prefs.getString("unlockSensitivity", "default");
+        			// stock value: 200
+        			if (unlockSensitivity.equals("more")) {
         				param.setResult(100);
         			}
+        			else if (unlockSensitivity.equals("less")) {
+        				param.setResult(300);
+        			}
+        		}
+        		@Override
+        		protected void afterHookedMethod(final MethodHookParam param) throws Throwable {
+        			XposedBridge.log("getUnlockDistance: " + param.getResult());
         		}
         	});
         }
@@ -452,17 +460,26 @@ public class XposedHooks implements IXposedHookLoadPackage {
         			prefs.reload();
         			improveUnlock = prefs.getBoolean("improveUnlock", false);
         			if (improveUnlock) {
-	    				Object mViewStateManager = getObjectField(param.thisObject, "mViewStateManager");
-	    				ViewFlipper mKeyguardSecurityContainer = (ViewFlipper) getObjectField(mViewStateManager, "mKeyguardSecurityContainer");
-	    				View security = mKeyguardSecurityContainer.getChildAt(mKeyguardSecurityContainer.getDisplayedChild());
-	    				int[] loc = new int[2];
-	    				security.getLocationOnScreen(loc);
-	    				if ((Integer) param.args[1] < loc[1]) {
-	            			//XposedBridge.log("canStartDrag");
+	    				//Object mViewStateManager = getObjectField(param.thisObject, "mViewStateManager");
+	    				//ViewFlipper mKeyguardSecurityContainer = (ViewFlipper) getObjectField(mViewStateManager, "mKeyguardSecurityContainer");
+	    				//View security = mKeyguardSecurityContainer.getChildAt(mKeyguardSecurityContainer.getDisplayedChild());
+	    				//int[] loc = new int[2];
+	    				//security.getLocationOnScreen(loc);
+            			//XposedBridge.log("canStartDrag: " + loc[1]);
+	    				if ((Integer) param.args[1] < 960) {
 	    					param.setResult(false);
+	            			//XposedBridge.log("canStartDrag before: false");
 	    				}
         			}
         		}
+        		/*@Override
+        		protected void afterHookedMethod(final MethodHookParam param) throws Throwable {
+        			prefs.reload();
+        			improveUnlock = prefs.getBoolean("improveUnlock", false);
+        			if (improveUnlock) {
+            			XposedBridge.log("canStartDrag after: " + param.getResult());
+        			}
+        		}*/
         	});
         }
         catch (XposedHelpers.ClassNotFoundError e) {
@@ -477,11 +494,23 @@ public class XposedHooks implements IXposedHookLoadPackage {
         			improveUnlock = prefs.getBoolean("improveUnlock", false);
         			if (improveUnlock) {
 	    				Object mViewStateManager = getObjectField(param.thisObject, "mViewStateManager");
-	    			    boolean bool = true;
-	    			    if (!(Boolean) callMethod(mViewStateManager, "isSeurityModeWithFooter", callMethod(mViewStateManager, "getCurSecurityMode"))) {
-	    	        		//XposedBridge.log("checkDragCondition");
+	    				Object mKeyguardWidgetPager = getObjectField(mViewStateManager, "mKeyguardWidgetPager");
+	    			    int curPage = (Integer) callMethod(mKeyguardWidgetPager, "getCurrentPage");
+	    			    boolean isSmall = (Boolean) callMethod(callMethod(mKeyguardWidgetPager, "getWidgetPageAt", curPage), "isSmall");
+	    			    //boolean isChallengeShowing = (Boolean) callMethod(mViewStateManager, "isChallengeShowing");
+	    			    //boolean isChallengeViewDragging = (Boolean) callMethod(mViewStateManager, "isChallengeViewDragging");
+	    			    boolean isPageViewInIdle = (Boolean) callMethod(mViewStateManager, "isPageViewInIdle");
+	    			    boolean isSeurityModeWithFooter = (Boolean) callMethod(mViewStateManager, "isSeurityModeWithFooter", callMethod(mViewStateManager, "getCurSecurityMode"));
+	    			    boolean bool = isPageViewInIdle;
+	    			    if (!isSmall) {
+	    	        		//XposedBridge.log("checkDragCondition isSmall: " + isSmall);
+		    			    param.setResult(bool);
+		    			    return;
+	    			    }
+	    			    if (!isSeurityModeWithFooter) {
 	    	        		bool = false;
 	    			    }
+    	        		//XposedBridge.log("checkDragCondition: " + bool);
 	    			    param.setResult(bool);
         			}
         		}
