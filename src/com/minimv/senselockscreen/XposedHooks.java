@@ -253,7 +253,7 @@ public class XposedHooks implements IXposedHookLoadPackage {
         				int[] loc = new int[2];
         				security.getLocationOnScreen(loc);
         				MotionEvent me = (MotionEvent) param.args[0];
-        				XposedBridge.log("startScrolling: " + mChallengeShowing);
+        				//XposedBridge.log("startScrolling: " + mChallengeShowing);
         				if (security.getClass().getName().contains("HtcPatternUnlockView") && mChallengeShowing && me.getRawY() > loc[1]) {
         					param.setResult(null);
         				}
@@ -427,10 +427,10 @@ public class XposedHooks implements IXposedHookLoadPackage {
         				param.setResult(300);
         			}
         		}
-        		@Override
+        		/*@Override
         		protected void afterHookedMethod(final MethodHookParam param) throws Throwable {
         			XposedBridge.log("getUnlockDistance: " + param.getResult());
-        		}
+        		}*/
         	});
         }
         catch (XposedHelpers.ClassNotFoundError e) {
